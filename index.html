@@ -1668,7 +1668,7 @@ function toggleMobileMenu() {
 
 // ===== INIT =====
 (function initLang(){
-  let saved = 'zh';
+  let saved = 'en';
   try { saved = localStorage.getItem('sgbc_lang') || 'zh'; } catch(e) {}
   applyLang(LANGS[saved] ? saved : 'zh');
 })();

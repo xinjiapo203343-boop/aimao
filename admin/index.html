@@ -1,1 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SG BizConnect · 管理后台</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--red:#DC2626;--navy:#0F172A;--gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;--gray-400:#94A3B8;--gray-600:#475569;--gray-800:#1E293B;--emerald:#059669;--gold:#D97706;--violet:#7C3AED;--border:rgba(0,0,0,.08);}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;}
+body{background:var(--gray-50);color:var(--gray-800);}
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-box{background:#fff;border-radius:16px;padding:36px;width:100%;max-width:360px;box-shadow:0 10px 30px rgba(0,0,0,.08);}
+.login-box h1{font-size:20px;margin-bottom:6px;color:var(--navy);}
+.login-box p{font-size:13px;color:var(--gray-400);margin-bottom:24px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;}
+.form-control{width:100%;padding:10px 12px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:14px;}
+textarea.form-control{resize:vertical;}
+.btn{padding:11px 20px;background:var(--red);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;}
+.btn.full{width:100%;}
+.btn.secondary{background:var(--violet);}
+.btn.ghost{background:#fff;color:var(--gray-700);border:1.5px solid var(--gray-200);}
+.btn:hover{opacity:.9;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.error-msg{color:var(--red);font-size:12px;margin-top:8px;display:none;}
+#dashboard{display:none;}
+.topbar{background:var(--navy);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;}
+.topbar h2{font-size:16px;}
+.topbar button{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;}
+.container{max-width:1200px;margin:0 auto;padding:24px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--border);}
+.stat-num{font-size:26px;font-weight:800;color:var(--navy);}
+.stat-label{font-size:12px;color:var(--gray-400);margin-top:4px;}
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab{padding:10px 18px;font-size:13px;font-weight:600;color:var(--gray-600);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.tab.active{color:var(--red);border-color:var(--red);}
+.panel{display:none;}
+.panel.active{display:block;}
+.card{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px;}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.card-header h3{font-size:15px;color:var(--navy);}
+.card-body{padding:20px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--gray-100);white-space:nowrap;}
+th{background:var(--gray-50);color:var(--gray-600);font-weight:700;font-size:11px;text-transform:uppercase;}
+tr:last-child td{border-bottom:none;}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.badge.pending{background:#FEF3C7;color:var(--gold);}
+.badge.approved,.badge.active{background:#D1FAE5;color:var(--emerald);}
+.badge.rejected,.badge.suspended,.badge.hidden{background:#FEE2E2;color:var(--red);}
+.action-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--gray-200);background:#fff;font-size:11px;cursor:pointer;margin-right:4px;white-space:nowrap;}
+.action-btn.approve{color:var(--emerald);border-color:var(--emerald);}
+.action-btn.reject{color:var(--red);border-color:var(--red);}
+.action-btn.delete{color:var(--gray-600);}
+.empty-state{padding:40px;text-align:center;color:var(--gray-400);font-size:13px;}
+.table-wrap{overflow-x:auto;}
+.top10-row{display:grid;grid-template-columns:2fr 3fr 80px 80px 40px;gap:10px;margin-bottom:10px;align-items:center;}
+.top10-row input{padding:8px 10px;border:1px solid var(--gray-200);border-radius:6px;font-size:13px;width:100%;}
+.top10-row .del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;}
+.save-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;}
+.save-toast.show{opacity:1;}
+.diag-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-100);font-size:13px;}
+.diag-item:last-child{border-bottom:none;}
+.diag-ok{color:var(--emerald);font-weight:700;}
+.diag-fail{color:var(--red);font-weight:700;}
+.post-content-preview{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hint{font-size:12px;color:var(--gray-400);margin-top:6px;}
+</style>
+</head>
+<body>
 
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>SG BizConnect 管理后台</h1>
+    <p>请输入管理员账号密码登录</p>
+    <div class="form-group"><label>账号</label><input class="form-control" id="adminUser" value="admin"></div>
+    <div class="form-group"><label>密码</label><input class="form-control" id="adminPass" type="password"></div>
+    <button class="btn full" onclick="adminLogin()">登录</button>
+    <div class="error-msg" id="loginError">账号或密码错误</div>
+  </div>
+</div>
+
+<div id="dashboard">
+  <div class="topbar">
+    <h2><i class="fa-solid fa-shield-halved"></i> SG BizConnect 管理后台</h2>
+    <button onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket"></i> 退出登录</button>
+  </div>
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="statUsers">0</div><div class="stat-label">注册客户总数</div></div>
+      <div class="stat-card"><div class="stat-num" id="statProviders">0</div><div class="stat-label">服务商申请总数</div></div>
+      <div class="stat-card"><div class="stat-num" id="statPending">0</div><div class="stat-label">待审核服务商</div></div>
+      <div class="stat-card"><div class="stat-num" id="statPosts">0</div><div class="stat-label">社区话题总数</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="users" onclick="switchTab('users')">客户注册</div>
+      <div class="tab" data-tab="providers" onclick="switchTab('providers')">服务商审核</div>
+      <div class="tab" data-tab="posts" onclick="switchTab('posts')">话题审核</div>
+      <div class="tab" data-tab="content" onclick="switchTab('content')">首页内容管理</div>
+      <div class="tab" data-tab="diag" onclick="switchTab('diag')">系统诊断</div>
+    </div>
+
+    <!-- 客户注册 -->
+    <div class="panel active" id="panelUsers">
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>姓名</th><th>邮箱</th><th>国家</th><th>注册时间</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="usersEmpty" style="display:none">暂无注册客户</div>
+      </div>
+    </div>
+
+    <!-- 服务商审核 -->
+    <div class="panel" id="panelProviders">
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>公司/个人名称</th><th>类型</th><th>邮箱</th><th>电话</th><th>UEN/执照</th><th>申请时间</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="providersBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="providersEmpty" style="display:none">暂无服务商申请</div>
+      </div>
+    </div>
+
+    <!-- 话题审核 -->
+    <div class="panel" id="panelPosts">
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>作者</th><th>标题</th><th>内容预览</th><th>发布时间</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="postsBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="postsEmpty" style="display:none">暂无社区话题</div>
+      </div>
+    </div>
+
+    <!-- 首页内容管理 -->
+    <div class="panel" id="panelContent">
+      <div class="card">
+        <div class="card-header"><h3><i class="fa-brands fa-whatsapp" style="color:#25D366"></i> 联系方式</h3></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>WhatsApp 号码（不含 + 号和空格，例如 33765114441）</label>
+            <input class="form-control" id="cfgWhatsapp">
+          </div>
+          <div class="form-group">
+            <label>页脚版权信息</label>
+            <input class="form-control" id="cfgFooter">
+          </div>
+          <button class="btn" onclick="saveContactContent()">保存联系方式</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3><i class="fa-solid fa-chart-simple"></i> 首页统计数字</h3></div>
+        <div class="card-body">
+          <div class="form-group"><label>认证服务商数量</label><input class="form-control" id="cfgStat1"></div>
+          <div class="form-group"><label>服务企业数</label><input class="form-control" id="cfgStat2"></div>
+          <div class="form-group"><label>覆盖国家数</label><input class="form-control" id="cfgStat3"></div>
+          <div class="form-group"><label>托管交易额</label><input class="form-control" id="cfgStat4"></div>
+          <button class="btn" onclick="saveStatsContent()">保存统计数字</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-ranking-star"></i> Top 10 服务商榜单</h3>
+          <button class="btn ghost" onclick="addTop10Row()"><i class="fa-solid fa-plus"></i> 添加一行</button>
+        </div>
+        <div class="card-body">
+          <div class="top10-row" style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;">
+            <div>公司名称</div><div>专长描述</div><div>评分</div><div>评价数</div><div></div>
+          </div>
+          <div id="top10Rows"></div>
+          <div class="hint">拖动顺序暂不支持，如需调整排名请直接删除后按新顺序重新添加。</div>
+          <button class="btn" style="margin-top:14px" onclick="saveTop10Content()">保存榜单</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 系统诊断 -->
+    <div class="panel" id="panelDiag">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-stethoscope"></i> 服务器环境诊断</h3>
+          <button class="btn ghost" onclick="runDiagnostics()"><i class="fa-solid fa-arrows-rotate"></i> 重新检测</button>
+        </div>
+        <div class="card-body" id="diagBody">
+          <div class="empty-state">点击"重新检测"开始检查</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="save-toast" id="saveToast">已保存</div>
+
+<script>
+const API = '../api/';
+
+async function apiCall(endpoint, method='GET', body=null) {
+  const opts = { method, headers: {'Content-Type':'application/json'} };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + endpoint, opts);
+  return res.json();
+}
+
+function showSaveToast(msg) {
+  const t = document.getElementById('saveToast');
+  t.textContent = msg || '已保存';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+async function adminLogin() {
+  const username = document.getElementById('adminUser').value.trim();
+  const password = document.getElementById('adminPass').value;
+  const r = await apiCall('admin_login.php', 'POST', { username, password });
+  if (r.ok) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+    loadContentIntoForm();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+async function adminLogout() {
+  await apiCall('admin_logout.php', 'POST', {});
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  if (tab === 'diag') runDiagnostics();
+}
+
+function badge(status) {
+  const labels = { pending:'待审核', approved:'已通过', rejected:'已拒绝', active:'正常', suspended:'已停用' };
+  return `<span class="badge ${status}">${labels[status] || status}</span>`;
+}
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ===== 数据加载（客户/服务商/话题）=====
+async function loadData() {
+  const r = await apiCall('admin_data.php');
+  if (!r.ok) {
+    if (r.error === 'unauthorized') {
+      document.getElementById('dashboard').style.display='none';
+      document.getElementById('loginScreen').style.display='flex';
+    }
+    return;
+  }
+
+  document.getElementById('statUsers').textContent = r.stats.total_users;
+  document.getElementById('statProviders').textContent = r.stats.total_providers;
+  document.getElementById('statPending').textContent = r.stats.pending_providers;
+
+  const usersBody = document.getElementById('usersBody');
+  usersBody.innerHTML = '';
+  document.getElementById('usersEmpty').style.display = r.users.length ? 'none' : 'block';
+  r.users.forEach(u => {
+    usersBody.innerHTML += `<tr>
+      <td>${escapeHtml(u.first_name)} ${escapeHtml(u.last_name)}</td>
+      <td>${escapeHtml(u.email)}</td>
+      <td>${escapeHtml(u.country || '-')}</td>
+      <td>${escapeHtml(u.created_at)}</td>
+      <td>${badge(u.status)}</td>
+      <td>
+        ${u.status === 'active'
+          ? `<button class="action-btn reject" onclick="doAction('user','${u.id}','suspend')">停用</button>`
+          : `<button class="action-btn approve" onclick="doAction('user','${u.id}','activate')">启用</button>`}
+        <button class="action-btn delete" onclick="doAction('user','${u.id}','delete')">删除</button>
+      </td>
+    </tr>`;
+  });
+
+  const provBody = document.getElementById('providersBody');
+  provBody.innerHTML = '';
+  document.getElementById('providersEmpty').style.display = r.providers.length ? 'none' : 'block';
+  r.providers.forEach(p => {
+    provBody.innerHTML += `<tr>
+      <td>${escapeHtml(p.company_name)}</td>
+      <td>${escapeHtml(p.provider_type || '-')}</td>
+      <td>${escapeHtml(p.email)}</td>
+      <td>${escapeHtml(p.phone)}</td>
+      <td>${escapeHtml(p.uen || '-')}</td>
+      <td>${escapeHtml(p.created_at)}</td>
+      <td>${badge(p.status)}</td>
+      <td>
+        ${p.status === 'pending' ? `
+          <button class="action-btn approve" onclick="doAction('provider','${p.id}','approve')">通过</button>
+          <button class="action-btn reject" onclick="doAction('provider','${p.id}','reject')">拒绝</button>` : ''}
+        <button class="action-btn delete" onclick="doAction('provider','${p.id}','delete')">删除</button>
+      </td>
+    </tr>`;
+  });
+
+  await loadPosts();
+}
+
+async function loadPosts() {
+  const res = await fetch(API + 'posts_admin_list.php');
+  let r;
+  try { r = await res.json(); } catch(e) { r = { ok:false }; }
+  const postsBody = document.getElementById('postsBody');
+  postsBody.innerHTML = '';
+  const posts = (r.ok && r.posts) ? r.posts : [];
+  document.getElementById('statPosts').textContent = posts.length;
+  document.getElementById('postsEmpty').style.display = posts.length ? 'none' : 'block';
+  posts.forEach(p => {
+    postsBody.innerHTML += `<tr>
+      <td>${escapeHtml(p.author)}</td>
+      <td>${escapeHtml(p.title)}</td>
+      <td class="post-content-preview" title="${escapeHtml(p.content)}">${escapeHtml(p.content)}</td>
+      <td>${escapeHtml(p.created_at)}</td>
+      <td>${p.hidden ? '<span class="badge hidden">已隐藏</span>' : '<span class="badge active">显示中</span>'}</td>
+      <td>
+        ${p.hidden
+          ? `<button class="action-btn approve" onclick="doAction('post','${p.id}','unhide')">恢复显示</button>`
+          : `<button class="action-btn reject" onclick="doAction('post','${p.id}','hide')">隐藏</button>`}
+        <button class="action-btn delete" onclick="doAction('post','${p.id}','delete')">删除</button>
+      </td>
+    </tr>`;
+  });
+}
+
+async function doAction(type, id, action) {
+  if (action === 'delete' && !confirm('确定要删除这条记录吗？此操作不可恢复。')) return;
+  const r = await apiCall('admin_action.php', 'POST', { type, id, action });
+  if (r.ok) loadData();
+  else alert('操作失败：' + (r.error || '未知错误'));
+}
+
+// ===== 首页内容管理 =====
+let top10Data = [];
+
+async function loadContentIntoForm() {
+  const r = await apiCall('content.php');
+  if (!r.ok) return;
+  const c = r.content;
+  document.getElementById('cfgWhatsapp').value = c.whatsapp_number || '';
+  document.getElementById('cfgFooter').value = c.footer_copyright || '';
+  const stats = c.hero_stats || [];
+  document.getElementById('cfgStat1').value = stats[0] ? stats[0].num : '';
+  document.getElementById('cfgStat2').value = stats[1] ? stats[1].num : '';
+  document.getElementById('cfgStat3').value = stats[2] ? stats[2].num : '';
+  document.getElementById('cfgStat4').value = stats[3] ? stats[3].num : '';
+  top10Data = c.top10 || [];
+  renderTop10Rows();
+}
+
+function renderTop10Rows() {
+  const wrap = document.getElementById('top10Rows');
+  wrap.innerHTML = top10Data.map((p, i) => `
+    <div class="top10-row">
+      <input value="${escapeHtml(p.name)}" onchange="top10Data[${i}].name=this.value">
+      <input value="${escapeHtml(p.spec)}" onchange="top10Data[${i}].spec=this.value">
+      <input value="${escapeHtml(p.rating)}" onchange="top10Data[${i}].rating=this.value">
+      <input value="${escapeHtml(p.reviews)}" onchange="top10Data[${i}].reviews=this.value">
+      <button class="del-btn" onclick="removeTop10Row(${i})"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join('');
+}
+function addTop10Row() {
+  top10Data.push({ id: 't' + Date.now(), name: '', spec: '', rating: '5.0', reviews: '0' });
+  renderTop10Rows();
+}
+function removeTop10Row(i) {
+  top10Data.splice(i, 1);
+  renderTop10Rows();
+}
+
+async function saveContactContent() {
+  const r = await apiCall('content.php', 'POST', {
+    whatsapp_number: document.getElementById('cfgWhatsapp').value.trim(),
+    footer_copyright: document.getElementById('cfgFooter').value.trim(),
+  });
+  if (r.ok) showSaveToast('联系方式已保存'); else alert('保存失败');
+}
+async function saveStatsContent() {
+  const hero_stats = [
+    { num: document.getElementById('cfgStat1').value.trim(), label_key: 'stat1' },
+    { num: document.getElementById('cfgStat2').value.trim(), label_key: 'stat2' },
+    { num: document.getElementById('cfgStat3').value.trim(), label_key: 'stat3' },
+    { num: document.getElementById('cfgStat4').value.trim(), label_key: 'stat4' },
+  ];
+  const r = await apiCall('content.php', 'POST', { hero_stats });
+  if (r.ok) showSaveToast('统计数字已保存'); else alert('保存失败');
+}
+async function saveTop10Content() {
+  const r = await apiCall('content.php', 'POST', { top10: top10Data });
+  if (r.ok) showSaveToast('榜单已保存'); else alert('保存失败');
+}
+
+// ===== 系统诊断 =====
+async function runDiagnostics() {
+  const body = document.getElementById('diagBody');
+  body.innerHTML = '<div class="empty-state">检测中...</div>';
+  const r = await apiCall('diagnostics.php');
+  if (!r.ok) { body.innerHTML = '<div class="empty-state">检测失败，请确认已登录</div>'; return; }
+  const labels = {
+    php_version: 'PHP 版本',
+    php_version_ok: 'PHP 版本是否符合要求 (≥7.0)',
+    data_dir_exists: 'data 目录是否存在',
+    data_dir_writable: 'data 目录是否可写（PHP权限检测）',
+    data_dir_actual_write_test: 'data 目录实际写入测试',
+    session_working: '管理员登录会话（Session）',
+    json_extension: 'JSON 扩展是否已加载',
+    users_json_readable: 'users.json 是否可读',
+    providers_json_readable: 'providers.json 是否可读',
+    posts_json_readable: 'posts.json 是否可读',
+  };
+  body.innerHTML = Object.keys(r.checks).map(key => {
+    const val = r.checks[key];
+    const isBool = typeof val === 'boolean';
+    const display = isBool ? (val ? '<span class="diag-ok">✓ 正常</span>' : '<span class="diag-fail">✗ 异常</span>') : escapeHtml(val);
+    return `<div class="diag-item"><span>${labels[key] || key}</span><span>${display}</span></div>`;
+  }).join('') + '<div class="hint" style="margin-top:12px">如果"data 目录实际写入测试"显示异常，请在服务器面板里把 data 文件夹权限改为 755 或 775。</div>';
+}
+
+// 页面加载时检查是否已登录（session 有效则直接进入后台）
+(async function checkSession() {
+  const r = await apiCall('admin_data.php');
+  if (r.ok) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+    loadContentIntoForm();
+  }
+})();
+</script>
+</body>
+</html>

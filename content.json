@@ -1,0 +1,18 @@
+{
+    "whatsapp_number": "33765114441",
+    "footer_copyright": "\u00a9 2026 SG BizConnect Pte. Ltd. \u00b7 Reg. No. 202XXXXXX \u00b7 UEN: 202XXXXXX",
+    "hero_stats": [
+        {"num": "2,400+", "label_key": "stat1"},
+        {"num": "18,000+", "label_key": "stat2"},
+        {"num": "40+", "label_key": "stat3"},
+        {"num": "SGD 12M+", "label_key": "stat4"}
+    ],
+    "top10": [
+        {"id": "t1", "name": "StarTeam Corporate Services", "spec": "E-commerce & Tech Compliance \u00b7 Secretary", "rating": "4.9", "reviews": "312"},
+        {"id": "t2", "name": "Raffles Secretarial & Nominee SG", "spec": "Nominee Director \u00b7 Family Office \u00b7 Holding Cos", "rating": "4.8", "reviews": "228"},
+        {"id": "t3", "name": "Apex Asia Corporate Pte Ltd", "spec": "Foreign Entity Setup \u00b7 Tax & Audit \u00b7 Incorporation", "rating": "4.8", "reviews": "187"},
+        {"id": "t4", "name": "Orchard Legal & Secretarial", "spec": "Startup Incorporation \u00b7 Equity Docs \u00b7 Shareholder Agreements", "rating": "4.7", "reviews": "154"},
+        {"id": "t5", "name": "Marina Bay Business Hub", "spec": "Bank Account Introduction \u00b7 DBS / OCBC Green Channel", "rating": "4.7", "reviews": "131"},
+        {"id": "t6", "name": "SG EntrePass Advisory Group", "spec": "EP \u00b7 EntrePass \u00b7 Dependent Pass \u00b7 MOM Applications", "rating": "4.6", "reviews": "98"}
+    ]
+}

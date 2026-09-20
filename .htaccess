@@ -1,0 +1,4 @@
+# 禁止任何人通过浏览器直接访问本目录下的数据文件
+Require all denied
+Order deny,allow
+Deny from all

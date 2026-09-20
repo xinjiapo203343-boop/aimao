@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1290,7 +1290,7 @@ function applyLang(lang) {
   });
   const nextLabel = { zh:'EN', en:'BM', ms:'中文' };
   document.getElementById('langBtn').textContent = nextLabel[lang] || 'EN';
-  document.documentElement.lang = lang === 'en' ? 'en' : (lang === 'ms' ? 'ms' : 'en');
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'ms' ? 'ms' : 'en');
   try { localStorage.setItem('sgbc_lang', lang); } catch(e) {}
 }
 
